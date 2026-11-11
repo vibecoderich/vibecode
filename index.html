@@ -870,9 +870,14 @@ function doPost(e) {
     sheet.appendRow([new Date(), clean(p.name), clean(p.phone), clean(p.email),
                      clean(p.industry), clean(p.question), "동의", clean(p.special)]);
 
-    MailApp.sendEmail(OWNER_EMAIL, "[바이브리치] 새 무료 특강 신청: " + clean(p.name),
-      "이름: " + p.name + "\n휴대폰: " + p.phone + "\n이메일: " + p.email +
-      "\n업종: " + p.industry + "\n궁금한 점: " + (p.question || "-") + "\n특강: " + p.special);
+    // 알림 메일이 실패해도 신청은 저장된 상태라서, 손님에게는 "완료"를 보여줘요
+    try {
+      MailApp.sendEmail(OWNER_EMAIL, "[바이브리치] 새 무료 특강 신청: " + clean(p.name),
+        "이름: " + p.name + "\n휴대폰: " + p.phone + "\n이메일: " + p.email +
+        "\n업종: " + p.industry + "\n궁금한 점: " + (p.question || "-") + "\n특강: " + p.special);
+    } catch (err) {
+      console.log("알림 메일 실패: " + err);
+    }
     return out({ result: "ok" });
   } finally {
     lock.releaseLock();
